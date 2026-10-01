@@ -1,0 +1,27 @@
+# ============================================================
+# Peekiva Couple Quiz — Cloudflare Worker config (FREE, no payments)
+# Deploy with: wrangler deploy
+# D1 database: couple-quiz-db
+# ============================================================
+name = "couple-quiz-api"
+main = "worker.js"
+compatibility_date = "2025-06-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "couple-quiz-db"
+database_id = "14942329-6335-4006-bab4-21cada5aaf80"
+
+[vars]
+# Frontend Pages URL (no trailing slash). Used for CORS + share links.
+ALLOWED_ORIGIN = "https://couple-quiz-ajh.pages.dev"
+PUBLIC_BASE_URL = "https://couple-quiz-ajh.pages.dev"
+DISCOVER_URL = "https://peekiva.com"
+
+# ------------------------------------------------------------
+# No secrets needed for this project. There is no payment
+# system, no login system, and no admin backdoor.
+# Creator permission comes from the unguessable creator token
+# stored in the D1 database (see schema.sql).
+# If you copy this project, only change the two URLs above.
+# ------------------------------------------------------------
