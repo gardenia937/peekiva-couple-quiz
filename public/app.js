@@ -52,10 +52,13 @@
     var ogd = document.querySelector('meta[property="og:description"]');
     if (ogd) ogd.setAttribute("content", desc);
   }
-  function setFooterCta(show) {
-    footerCta.innerHTML = show
-      ? '<p>Discover more quizzes on Peekiva.</p><a class="peekiva-cta" href="' + DISCOVER_URL + '">Discover More</a>'
-      : "";
+  /* Shown on EVERY page: a prominent but tasteful Peekiva CTA. */
+  function setFooterCta() {
+    footerCta.innerHTML =
+      '<div class="peekiva-cta-card"><p class="cta-kicker">Peekiva</p>' +
+      '<p class="cta-title">Want <em>more like this?</em></p>' +
+      '<p class="cta-text">Discover more quizzes on Peekiva.</p>' +
+      '<a class="btn btn-primary" href="' + DISCOVER_URL + '">Discover More</a></div>';
   }
 
   async function api(path, opts) {
@@ -134,7 +137,7 @@
 
   function notFound(message, hint) {
     setMeta("Page not found | Peekiva", "This page doesn't exist.");
-    setFooterCta(false);
+    setFooterCta();
     app.innerHTML =
       '<div class="wrap center"><div class="hero">' +
       '<h1>This page<br><em>doesn\'t exist.</em></h1>' +
@@ -163,7 +166,7 @@
       "Couple Quizzes & Fun Relationship Questions | Peekiva",
       "Create a free couple quiz, send it to someone you love, and discover what they really think."
     );
-    setFooterCta(false);
+    setFooterCta();
     app.innerHTML =
       '<div class="wrap"><div class="hero">' +
       '<span class="eyebrow">Free · No sign-up · Takes minutes</span>' +
@@ -198,7 +201,7 @@
      ============================================================ */
   route(/^\/create$/, function () {
     setMeta("Create a quiz | Peekiva", "Pick a starting point — or build your own from scratch. Free, no sign-up.");
-    setFooterCta(false);
+    setFooterCta();
     var cards = window.PEEKIVA_TEMPLATES.map(function (t) {
       var n = t.id === "custom" ? "Blank canvas" : t.questions.length + " questions";
       return (
@@ -242,7 +245,7 @@
 
   function renderBuilder() {
     setMeta("Create your quiz | Peekiva", "Write your questions, pick your types, and send it to someone who matters.");
-    setFooterCta(false);
+    setFooterCta();
     var b = builder;
     var html =
       '<div class="wrap wrap-wide"><div style="padding-top:24px">' +
@@ -402,7 +405,7 @@
       return;
     }
     setMeta("Your quiz is ready | Peekiva", "Send the link to them and see what they say.");
-    setFooterCta(false);
+    setFooterCta();
     var qUrl = quizUrl(saved.quizId);
     var mUrl = manageUrl(saved.creatorToken);
     app.innerHTML =
@@ -435,7 +438,7 @@
      ============================================================ */
   route(/^\/quiz\/([A-Za-z0-9_-]{5,12})$/, function (m) {
     var quizId = m[1];
-    setFooterCta(false);
+    setFooterCta();
     app.innerHTML = '<div class="wrap"><p class="note" style="padding-top:40px">Loading your quiz…</p></div>';
     api("/api/quiz/" + encodeURIComponent(quizId)).then(function (data) {
       var q = data.quiz;
@@ -473,7 +476,7 @@
     }).catch(function (e) {
       if (e.code === "QUIZ_NOT_FOUND") notFound("This quiz doesn't exist.", "Check the link — it may have a typo.");
       else if (e.code === "QUIZ_CLOSED") notFound("This quiz is no longer available.", "The person who made it may have closed it.");
-      else { setMeta("Something went wrong | Peekiva", "Please try again."); setFooterCta(false); app.innerHTML = '<div class="wrap"><div class="alert">Something went wrong. Please try again.</div></div>'; }
+      else { setMeta("Something went wrong | Peekiva", "Please try again."); setFooterCta(); app.innerHTML = '<div class="wrap"><div class="alert">Something went wrong. Please try again.</div></div>'; }
     });
   });
 
@@ -507,7 +510,7 @@
     var quizId = m[1];
     var prog = progressStore(quizId).load();
     if (!prog || !prog.responseId) { navigate("/quiz/" + quizId); return; }
-    setFooterCta(false);
+    setFooterCta();
     app.innerHTML = '<div class="wrap"><p class="note" style="padding-top:40px">Loading your quiz…</p></div>';
     // Reconcile with server (handles refresh + multi-tab).
     loadAnswerState(quizId, prog).then(function (data) {
@@ -685,7 +688,7 @@
      ============================================================ */
   route(/^\/done$/, function () {
     setMeta("You're done | Peekiva", "Your answers have been sent.");
-    setFooterCta(true);
+    setFooterCta();
     app.innerHTML =
       '<div class="wrap"><div class="hero center" style="padding-top:40px">' +
       '<span class="eyebrow">Sent with care</span>' +
@@ -700,7 +703,7 @@
      ============================================================ */
   route(/^\/manage\/([A-Za-z0-9_-]{20,64})$/, function (m) {
     var token = m[1];
-    setFooterCta(false);
+    setFooterCta();
     app.innerHTML = '<div class="wrap"><p class="note" style="padding-top:40px">Opening your dashboard…</p></div>';
     api("/api/manage/" + encodeURIComponent(token)).then(function (data) {
       var quiz = data.quiz;
@@ -761,7 +764,7 @@
      ============================================================ */
   route(/^\/manage\/([A-Za-z0-9_-]{20,64})\/response\/([0-9a-f-]{20,64})$/, function (m) {
     var token = m[1], rid = m[2];
-    setFooterCta(true);
+    setFooterCta();
     app.innerHTML = '<div class="wrap"><p class="note" style="padding-top:40px">Loading answers…</p></div>';
     api("/api/manage/" + encodeURIComponent(token) + "/responses/" + encodeURIComponent(rid)).then(function (data) {
       var s = data.stats;
@@ -836,7 +839,7 @@
      ============================================================ */
   route(/^\/r\/([A-Za-z0-9_-]{6,32})$/, function (m) {
     var shareId = m[1];
-    setFooterCta(true);
+    setFooterCta();
     app.innerHTML = '<div class="wrap"><p class="note" style="padding-top:40px">Loading…</p></div>';
     api("/api/shared/" + encodeURIComponent(shareId)).then(function (data) {
       var s = data.share;
